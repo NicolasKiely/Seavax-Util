@@ -36,6 +36,9 @@ int initListSock(const char port[]){
 		return -1;
 	}
 	
+	int y = 1;
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(y));
+	
 	/* Bind socket */
 	ret = bind(fd, aiList->ai_addr, aiList->ai_addrlen);
 	if (ret != 0){
@@ -44,9 +47,6 @@ int initListSock(const char port[]){
 		close(fd);
 		return -1;
 	}
-	
-	int y = 1;
-	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(y));
 	
 	/* Listen to port */
 	ret = listen(fd, 8);
