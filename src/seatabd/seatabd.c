@@ -45,8 +45,8 @@ int main(int argc, char *argv[]){
 		tv.tv_usec = 1000*20;
 	
 		/* Check sockets */
-		printf("\nPolling sockets; ");
-		debNetman(&net);
+		//printf("\nPolling sockets; ");
+		//debNetman(&net);
 		resetfds(&net);
 		select(net.fdsi, &net.fdsr, NULL, NULL, NULL);
 		//select(net.fdsi, &net.fdsr, NULL, NULL, &tv);
@@ -59,12 +59,12 @@ int main(int argc, char *argv[]){
 		}
 		
 		/* Check remote sockets */
-		printf("Reading client sockets; ");
-		debNetman(&net);
+		//printf("Reading client sockets; ");
+		//debNetman(&net);
 		checkRemoteLoop(&net);
 		
-		printf("Reading server sockets; ");
-		debNetman(&net);
+		//printf("Reading server sockets; ");
+		//debNetman(&net);
 		checkSeavaxLoop(&net);
 		
 		/* Clean up discarded structs */
@@ -174,7 +174,7 @@ void checkSeavaxLoop(struct netman *pNet){
 		refactorString(pStr);
 		if (isBucketNonEmpty(pStr->pBkt) == 0){
 			/* Send empty message */
-			printf("#SRV#: #NULL#\n");
+			//printf("#SRV#: #NULL#\n");
 			sendNullMsg(pRmt->sock);
 			
 			freeString(&pStr);
@@ -182,7 +182,7 @@ void checkSeavaxLoop(struct netman *pNet){
 		}
 		
 		/* DEBUG */
-		printf("#SRV#: '%s'\n", pStr->pBkt->pBuf);
+		//printf("#SRV#: '%s'\n", pStr->pBkt->pBuf);
 		
 		/* Broadcast to linked remotes */
 		for (pRmt = pNet->pRem; pRmt != NULL; pRmt = pRmt->pNext){
