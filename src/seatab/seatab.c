@@ -336,6 +336,12 @@ void processFlags(struct flags *pf, int argc, char *argv[]){
 			pf->r = -1;
 		} else if (strcmp(argv[i], "-x") == 0){
 			pf->x = -1;
+		} else if (strcmp(argv[i], "-a") == 0){
+			pf->b = -1;
+			pf->c = -1;
+			pf->h = -1;
+			pf->m = -1;
+			pfs = &pf->sm;
 		}
 	}
 	
@@ -363,6 +369,7 @@ void displayUsage(){
 	printf("\t-h: Displays table header of server's response\n");
 	printf("\t-c: Displays table columns of server's response\n");
 	printf("\t-b: Displays table body of server's response\n");
+	printf("\n-a: Substitute flag for -h -b -c -m\n");
 	
 	printf("\nDaemon Flags:\n");
 	printf("\t-x: Shut down daemon\n");
