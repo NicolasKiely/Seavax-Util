@@ -93,7 +93,4 @@ void sendMsg(int sockFD, char *msg, int msgLen);
 /* Sends null table message */
 void sendNullMsg(int sockFD);
 
-
-void debNetman(struct netman *pNet);
-
 #endif

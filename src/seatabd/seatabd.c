@@ -4,12 +4,16 @@
 #include <netdb.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
 
 
 #include "bucketString.h"
 #include "net.h"
 #include "parser.h"
 
+/* Sets up process as daemon */
+void setupDaemon();
 
 /* Socket reading code */
 void checkRemoteLoop(struct netman *pNet);
@@ -29,42 +33,29 @@ void checkSeavaxLoop(struct netman *pNet);
 int main(int argc, char *argv[]){
 	struct netman net;
 	
+	setupDaemon();
+	
 	/* Start up */
 	memset(&net, 0, sizeof(net));
 	net.lfd = initListSock(LISTENING_PORT);
-	if (net.lfd == -1){
-		fprintf(stderr, "init error!\n");
-		return 1;
-	}
+	if (net.lfd == -1) return 1;
 	
 	/* Main loop */
 	while (net.sd == 0){
 		struct remote *pCur;
-		struct timeval tv;
-		tv.tv_sec = 0;
-		tv.tv_usec = 1000*20;
-	
+
 		/* Check sockets */
-		//printf("\nPolling sockets; ");
-		//debNetman(&net);
 		resetfds(&net);
 		select(net.fdsi, &net.fdsr, NULL, NULL, NULL);
-		//select(net.fdsi, &net.fdsr, NULL, NULL, &tv);
 		
 		/* Handle listener */
 		if (FD_ISSET(net.lfd, &net.fdsr)){
 			/* Read listening port */
 			addCon(&net, accept(net.lfd, NULL, NULL));
-			//printf("DEBUG: Adding new client\n");
 		}
 		
 		/* Check remote sockets */
-		//printf("Reading client sockets; ");
-		//debNetman(&net);
 		checkRemoteLoop(&net);
-		
-		//printf("Reading server sockets; ");
-		//debNetman(&net);
 		checkSeavaxLoop(&net);
 		
 		/* Clean up discarded structs */
@@ -79,6 +70,30 @@ int main(int argc, char *argv[]){
 	return 0;
 }
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^*/
+
+
+void setupDaemon(){
+	pid_t pid;
+	
+	/* Initial fork */
+	pid = fork();
+	
+	/* Exit parent, success or not */
+	if (pid != 0) exit(0);
+	
+	signal(SIGCHLD, SIG_IGN);
+	signal(SIGHUP, SIG_IGN);
+	
+	/* Become session leader */
+	setsid();
+	
+	pid = fork();
+	if (pid != 0) exit(0);
+	
+	fclose(stdin);
+	fclose(stdout);
+	fclose(stderr);
+}
 
 
 void checkRemoteLoop(struct netman *pNet){

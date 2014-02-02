@@ -24,14 +24,12 @@ int initListSock(const char port[]){
 	
 	ret = getaddrinfo(NULL, port, &aiInit, &aiList);
 	if (ret != 0 || aiList == 0){
-		fprintf(stderr, "Error, cannot lookup addrinfo\n");
 		return -1;
 	}
 	
 	/* Create socket */
 	fd = socket(aiList->ai_family, aiList->ai_socktype, aiList->ai_protocol);
 	if (fd == -1){
-		fprintf(stderr, "Error, could not create socket\n");
 		freeaddrinfo(aiList);
 		return -1;
 	}
@@ -42,7 +40,6 @@ int initListSock(const char port[]){
 	/* Bind socket */
 	ret = bind(fd, aiList->ai_addr, aiList->ai_addrlen);
 	if (ret != 0){
-		fprintf(stderr, "Error, could not bind socket\n");
 		freeaddrinfo(aiList);
 		close(fd);
 		return -1;
@@ -51,7 +48,6 @@ int initListSock(const char port[]){
 	/* Listen to port */
 	ret = listen(fd, 8);
 	if (ret != 0){
-		fprintf(stderr, "Error, cannot listen to port\n");
 		freeaddrinfo(aiList);
 		close(fd);
 		return -1;
@@ -191,7 +187,6 @@ void dropClosedProfiles(struct netman *pNet){
 		}
 		
 		/* Close socket and free read buffer */
-		//printf("DEBUG: Closed profile '%s'\n", pPfl->name);
 		
 		/* Update previous remote */
 		pNxt = pPfl->pNext;
@@ -312,22 +307,4 @@ void sendNullMsg(int sockFD){
 	if (sockFD < 0) return;
 	
 	sendMsg(sockFD, "\n\n\n", 3);
-}
-
-
-void debNetman(struct netman *pNet){
-	int rmtC, pflC;
-	struct profile *pPfl;
-	struct remote *pRmt;
-	
-	rmtC = 0;
-	pflC = 0;
-	
-	for (pRmt = pNet->pRem; pRmt != NULL; pRmt = pRmt->pNext)
-		if (pRmt->sock > 0) rmtC++;
-	
-	for (pPfl = pNet->pPfl; pPfl != NULL; pPfl = pPfl->pNext)
-		if (pPfl->srvSock > 0) pflC++;
-		
-	printf("#net#:fdsi=%d rmt=%d pfl=%d\n", pNet->fdsi, rmtC, pflC);
 }
