@@ -8,6 +8,7 @@ struct profile {
 	int srvSock; /* Server socket */
 	
 	int remFlag; /* Removal flag */
+	int dcnFlag; /* Disconnect flag */
 	
 	
 	struct profile *pNext;

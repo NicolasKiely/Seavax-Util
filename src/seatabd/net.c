@@ -64,6 +64,7 @@ void resetfds(struct netman *pNet){
 	
 	FD_ZERO(&pNet->fdsr);
 	
+	/* Set listnening socket */
 	FD_SET(pNet->lfd, &pNet->fdsr);
 	pNet->fdsi = pNet->lfd+1;
 	

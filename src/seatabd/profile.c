@@ -14,6 +14,7 @@ struct profile *newProfile(){
 	pPfl->pNext = NULL;
 	pPfl->remFlag = 0;
 	pPfl->srvSock = -1;
+	pPfl->dcnFlag = 0;
 	
 	return pPfl;
 }

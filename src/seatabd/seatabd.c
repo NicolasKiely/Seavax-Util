@@ -175,6 +175,9 @@ void checkSeavaxLoop(struct netman *pNet){
 			readLen = recv(pCur->srvSock, pBkt->pBuf, pBkt->size, 0);
 			
 			if (readLen <= 0){
+				/* Mark profile for disconnecting to server */
+				if (readLen == 0) pCur->dcnFlag = -1;
+			
 				/* No data read, no use for bucket */
 				freeBucket(&pBkt);
 				break;
@@ -187,26 +190,25 @@ void checkSeavaxLoop(struct netman *pNet){
 		
 		/* Compress buckets into one buffer */
 		refactorString(pStr);
-		if (isBucketNonEmpty(pStr->pBkt) == 0){
-			/* Send empty message */
-			//printf("#SRV#: #NULL#\n");
-			sendNullMsg(pRmt->sock);
-			
-			freeString(&pStr);
-			continue;
-		}
-		
-		/* DEBUG */
-		//printf("#SRV#: '%s'\n", pStr->pBkt->pBuf);
 		
 		/* Broadcast to linked remotes */
 		for (pRmt = pNet->pRem; pRmt != NULL; pRmt = pRmt->pNext){
 			if (pRmt->pPfl == pCur){
-				sendMsg(pRmt->sock, pStr->pBkt->pBuf, pStr->pBkt->size);
-				sendMsg(pRmt->sock, "\n", 1);
-				//pRmt->remFlag = -1;
+			
+				if (isBucketNonEmpty(pStr->pBkt)){
+					/* Forward message */
+					sendMsg(pRmt->sock, pStr->pBkt->pBuf, pStr->pBkt->size);
+					sendMsg(pRmt->sock, "\n", 1);
+				} else {
+					/* Send null message. Drop client? */
+					//sendNullMsg(pRmt->sock);
+				}
 			}
 		}
+		
+		/* Handle disconnecting profile */
+		if (pCur->dcnFlag != 0) resetProfile(pCur);
+		pCur->dcnFlag = 0;
 		
 		freeString(&pStr);
 		
