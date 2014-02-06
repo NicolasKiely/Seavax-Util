@@ -203,6 +203,12 @@ void checkSeavaxLoop(struct netman *pNet){
 					/* Send null message. Drop client? */
 					//sendNullMsg(pRmt->sock);
 				}
+				
+				if (pCur->dcnFlag != 0){
+					/* Force-disconnect clients listening to closed server.
+					not the prettiest solution, but helps prevent hanging */
+					pRmt->remFlag = -1;
+				}
 			}
 		}
 		
